@@ -2,3 +2,5 @@ requests
 beautifulsoup4
 PyPtt
 telnetlib3
+opencv-python
+pynput 
