@@ -4,3 +4,4 @@ PyPtt
 telnetlib3
 opencv-python
 pynput 
+pyttsx3

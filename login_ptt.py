@@ -62,6 +62,7 @@ if __name__ == '__main__':
                 URL=input('\n請輸入網址:')
                 filename=filename_to_aid(URL)
                 Get_Ptt_Data.get_web_scraper(ptt_bot,filename)
-        
+    except KeyboardInterrupt:
+        Get_Ptt_Data.favourite_boards(ptt_bot)
     finally:
         ptt_bot.logout()
