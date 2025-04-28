@@ -23,17 +23,18 @@ def favourite_boards(ptt_bot):
     
 def favourite_boards_list(ptt_bot,URL):
     page_list = ['z','x','c','v']
-    file2 = open('Allexample.txt', 'r+', encoding='utf-8')
+    global board_URL
     while True:
         return_json=get_web_list(URL)
         boards_URL=URL
-        
+        file2 = open('Allexample.txt', 'w', encoding='utf-8')
         for i in return_json['title_list']:
             print(f"{i}. {return_json['title_list'][i]['title']}  {return_json['title_list'][i]['a']}")
-            file2.write(f"{return_json['title_list'][i]['title']}\n")
+            file2.write(f"{i}. {return_json['title_list'][i]['title']}\n")
         for i in range(len(return_json['page_list'])):
             print(f"{page_list[i]}. {return_json['page_list'][i]['page']}",end=' ')
         print(f"q或e 回看板",end=' ')
+        file2.close()
         page_list_id=(input('請輸入頁碼:'))
         
         
@@ -48,12 +49,16 @@ def favourite_boards_list(ptt_bot,URL):
         else:
             if page_list_id==page_list[0]:
                 URL='https://www.ptt.cc/'+return_json['page_list'][0]['a']
+                board_URL = URL
             elif page_list_id==page_list[1]:
                 URL='https://www.ptt.cc/'+return_json['page_list'][1]['a']
+                board_URL = URL
             elif page_list_id==page_list[2]:
                 URL='https://www.ptt.cc/'+return_json['page_list'][2]['a']
+                board_URL = URL
             elif page_list_id==page_list[3]:
                 URL='https://www.ptt.cc/'+return_json['page_list'][3]['a']
+                board_URL = URL
             elif page_list_id=='e' or page_list_id=='q':
                 favourite_boards(ptt_bot)
 
