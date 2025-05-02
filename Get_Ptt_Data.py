@@ -7,20 +7,106 @@ from pynput import keyboard
 from threading import Thread, Event
 from GET_AID import filename_to_aid
 import pyttsx3
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
+# 設定 Chrome 瀏覽器選項
+chrome_options = Options()
+# chrome_options.add_argument("--headless")  # 啟用無頭模式
+chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--no-sandbox")
+
 def favourite_boards(ptt_bot):
     favourite_boards = ptt_bot.get_favourite_boards()
     board_list = []
-    
-    for board in  range(len(favourite_boards)):
-        board_list.append(favourite_boards[board]['board'])
-        print(f"{board}. {favourite_boards[board]['board']} {favourite_boards[board]['title']}")
+    with open('Allexample.txt', 'w', encoding='utf-8') as file_All:
+        for board in range(len(favourite_boards)):
+            board_list.append(favourite_boards[board]['board'])
+            board_info = f"{board}. {favourite_boards[board]['board']} {favourite_boards[board]['title']}\n"
+            print(board_info.strip())
+            file_All.write(board_info)
+        
     board_list_id=int(input('請輸入看板編號:'))
     # board_list_id=8
     URL=f'https://www.ptt.cc/bbs/{board_list[board_list_id]}/index.html'
     global board_URL
     board_URL = URL
     favourite_boards_list(ptt_bot,URL)
+def favourite_hit_boards():
+    # 啟動瀏覽器
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    URL = 'https://moptt.tw/popular'
+    driver.get(URL)
+
+    # 等待頁面加載完成
+    driver.implicitly_wait(10)
+    title_json={}
+    # 獲取頁面內容
+    page_source = driver.page_source
+    soup = BeautifulSoup(page_source, "html.parser")
+    # 查找所有符合條件的 <a> 標籤
+    links = soup.find_all('a', class_='QotC6WphicSBRZfxn0QS')
+    # 提取 href 和 h3 的文字
+    for link in links:
+        href = link.get('href')  # 提取 href 屬性
+        if href and '/p/' in href:
+            href = href.split('/p/')[-1]  # 提取 /p/ 後面的部分
+            boards=href.split('.')[0]  # 提取 /p/ 後面的部分
+            href = href.split('.', 1)[-1]  # 提取第一個 . 後面的所有部分
+            href = (f'/bbs/{boards}/{href}.html')  # 提取第一個 . 後面的所有部分
+        h3_text = link.find('h3').get_text(strip=True) if link.find('h3') else "No Title"  # 提取 h3 的文字
+        print(f"1==Href: {href} ,boards {boards}, Title: {h3_text}")
+    # 滾動到頁面底部
+    soup = re_hit_boards_list(driver)
+    # 查找所有符合條件的 <a> 標籤
+    links = soup.find_all('a', class_='QotC6WphicSBRZfxn0QS')
+    # 提取 href 和 h3 的文字
+    for link in links:
+        href = link.get('href')  # 提取 href 屬性
+        if href and '/p/' in href:
+            href = href.split('/p/')[-1]  # 提取 /p/ 後面的部分
+            boards=href.split('.')[0]  # 提取 /p/ 後面的部分
+            href = href.split('.', 1)[-1]  # 提取第一個 . 後面的所有部分
+            href = (f'/bbs/{boards}/{href}.html')  # 提取第一個 . 後面的所有部分
+        h3_text = link.find('h3').get_text(strip=True) if link.find('h3') else "No Title"  # 提取 h3 的文字
+        print(f"2==Href: {href} ,boards {boards}, Title: {h3_text}")
+
     
+    
+    # input('請輸入編號:')
+    
+    # 關閉瀏覽器
+    driver.quit()
+def re_hit_boards_list(driver):
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)  # 等待頁面加載
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:  # 如果高度沒有變化，說明已經到底部
+            break
+        last_height = new_height
+        # 重新讀取頁面內容
+        page_source = driver.page_source
+        soup = BeautifulSoup(page_source, "html.parser")
+        links = soup.find_all('a', class_='QotC6WphicSBRZfxn0QS')
+        # 提取 href 和 h3 的文字
+        for link in links:
+            href = link.get('href')  # 提取 href 屬性
+            if href and '/p/' in href:
+                href = href.split('/p/')[-1]  # 提取 /p/ 後面的部分
+                boards=href.split('.')[0]  # 提取 /p/ 後面的部分
+                href = href.split('.', 1)[-1]  # 提取第一個 . 後面的所有部分
+                href = (f'/bbs/{boards}/{href}.html')  # 提取第一個 . 後面的所有部分
+            h3_text = link.find('h3').get_text(strip=True) if link.find('h3') else "No Title"  # 提取 h3 的文字
+            print(f"2==Href: {href} ,boards {boards}, Title: {h3_text}")
+        
+    return soup
+
+
 def favourite_boards_list(ptt_bot,URL):
     page_list = ['z','x','c','v']
     global board_URL
@@ -34,6 +120,7 @@ def favourite_boards_list(ptt_bot,URL):
         for i in range(len(return_json['page_list'])):
             print(f"{page_list[i]}. {return_json['page_list'][i]['page']}",end=' ')
         print(f"q或e 回看板",end=' ')
+        print("=====================")
         file2.close()
         page_list_id=(input('請輸入頁碼:'))
         
@@ -105,17 +192,17 @@ def get_web_scraper(ptt_bot, filename,boards_URL):
     try:
         def on_press(key):
             global last_key_pressed
-            try:
-                # 儲存最近按下的鍵
-                last_key_pressed = key.char
-                if key.char == 'e' :  # 偵測按下 'e' 鍵
-                    print("按下了 'e' 鍵，停止迴圈並執行 回看板")
-                    stop_event.set()  # 設定旗標，停止迴圈
-                elif key.char == 'q':  # 偵測按下 'q' 鍵
-                    print("按下了 'q' 鍵，停止迴圈並 回看板列表")
-                    stop_event.set()  # 設定旗標，停止迴圈
-            except AttributeError:
-                pass
+            # try:
+            #     # 儲存最近按下的鍵
+            #     last_key_pressed = key.char
+            #     if key.char == 'e' :  # 偵測按下 'e' 鍵
+            #         print("按下了 'e' 鍵，停止迴圈並執行 回看板")
+            #         # stop_event.set()  # 設定旗標，停止迴圈
+            #     elif key.char == 'q':  # 偵測按下 'q' 鍵
+            #         print("按下了 'q' 鍵，停止迴圈並 回看板列表")
+            #         # stop_event.set()  # 設定旗標，停止迴圈
+            # except AttributeError:
+            #     pass
 
         # 啟動鍵盤監聽器
         listener = keyboard.Listener(on_press=on_press)
@@ -186,4 +273,5 @@ def get_web_scraper(ptt_bot, filename,boards_URL):
 
 if __name__ == "__main__":
     # 測試範例
+    favourite_hit_boards()
     pass

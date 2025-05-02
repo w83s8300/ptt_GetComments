@@ -53,11 +53,13 @@ if __name__ == '__main__':
         if ptt_bot is None:
             ptt_bot = login()
         # https://illya.tw/ptt-aid Ptt 文章代碼(AID)與網址轉換
-        line_type = input('請輸入網址類型(1)預覽(2)網址:')
+        line_type = input('請輸入網址類型(1)預覽(2)熱門(3)網址:')
         match line_type:
             case "1":
                 Get_Ptt_Data.favourite_boards(ptt_bot)
             case "2":
+                Get_Ptt_Data.favourite_hit_boards(ptt_bot)
+            case "3":
                 # 看板名稱
                 URL=input('\n請輸入網址:')
                 filename=filename_to_aid(URL)
