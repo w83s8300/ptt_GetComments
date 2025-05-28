@@ -15,7 +15,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # 設定 Chrome 瀏覽器選項
 chrome_options = Options()
-# chrome_options.add_argument("--headless")  # 啟用無頭模式
+chrome_options.add_argument("--headless")  # 啟用無頭模式
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--no-sandbox")
 
@@ -28,17 +28,51 @@ def favourite_boards(ptt_bot):
             board_info = f"{board}. {favourite_boards[board]['board']} {favourite_boards[board]['title']}\n"
             print(board_info.strip())
             file_All.write(board_info)
-        
+    file_All.close()      
     board_list_id=int(input('請輸入看板編號:'))
     # board_list_id=8
     URL=f'https://www.ptt.cc/bbs/{board_list[board_list_id]}/index.html'
     global board_URL
     board_URL = URL
     favourite_boards_list(ptt_bot,URL)
-def favourite_hit_boards():
+    
+def favourite_hit_boards(ptt_bot=''):
     # 啟動瀏覽器
+    Type_ilst = ['all',
+            'news',
+            'not-news',
+            'game',
+            'career',
+            'shop',
+            'comic',
+            'sport',
+            'boygirl',
+            'star',
+            'ent',
+            'digit',
+            'taiwan',
+            'foodtravel'
+            
+    ]
+    print('''0.全部
+1.新聞
+2.非新聞
+3.遊戲區
+4.職涯區
+5.消費區
+6.動漫區
+7.運動區
+8.兩性男女區
+9.偶像團體區
+10.影音娛樂區
+11.數位生活區
+12.台灣在地區
+13.美食旅
+        ''')
+    Type_id=int(input('請輸入類型編號:'))
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-    URL = 'https://moptt.tw/popular'
+    URL = (f'https://www.pttweb.cc/hot/{Type_ilst[Type_id]}/today')
+    # URL = 'https://www.pttweb.cc/hot/all/today'
     driver.get(URL)
 
     # 等待頁面加載完成
@@ -48,67 +82,67 @@ def favourite_hit_boards():
     page_source = driver.page_source
     soup = BeautifulSoup(page_source, "html.parser")
     # 查找所有符合條件的 <a> 標籤
-    links = soup.find_all('a', class_='QotC6WphicSBRZfxn0QS')
-    # 提取 href 和 h3 的文字
-    for link in links:
-        href = link.get('href')  # 提取 href 屬性
-        if href and '/p/' in href:
-            href = href.split('/p/')[-1]  # 提取 /p/ 後面的部分
-            boards=href.split('.')[0]  # 提取 /p/ 後面的部分
-            href = href.split('.', 1)[-1]  # 提取第一個 . 後面的所有部分
-            href = (f'/bbs/{boards}/{href}.html')  # 提取第一個 . 後面的所有部分
-        h3_text = link.find('h3').get_text(strip=True) if link.find('h3') else "No Title"  # 提取 h3 的文字
-        print(f"1==Href: {href} ,boards {boards}, Title: {h3_text}")
-    # 滾動到頁面底部
-    soup = re_hit_boards_list(driver)
-    # 查找所有符合條件的 <a> 標籤
-    links = soup.find_all('a', class_='QotC6WphicSBRZfxn0QS')
-    # 提取 href 和 h3 的文字
-    for link in links:
-        href = link.get('href')  # 提取 href 屬性
-        if href and '/p/' in href:
-            href = href.split('/p/')[-1]  # 提取 /p/ 後面的部分
-            boards=href.split('.')[0]  # 提取 /p/ 後面的部分
-            href = href.split('.', 1)[-1]  # 提取第一個 . 後面的所有部分
-            href = (f'/bbs/{boards}/{href}.html')  # 提取第一個 . 後面的所有部分
-        h3_text = link.find('h3').get_text(strip=True) if link.find('h3') else "No Title"  # 提取 h3 的文字
-        print(f"2==Href: {href} ,boards {boards}, Title: {h3_text}")
-
-    
-    
-    # input('請輸入編號:')
-    
+    URL =re_hit_boards_list(soup,driver) 
     # 關閉瀏覽器
     driver.quit()
-def re_hit_boards_list(driver):
+    URL ='https://www.ptt.cc'+URL+'.html'
+    filename=filename_to_aid(URL)
+    global board_URL
+    boards_URL='https://www.ptt.cc'+filename[0]+'/index.html'
+    get_web_scraper(ptt_bot,filename,boards_URL)
+    
+    
+def re_hit_boards_list(soup,driver):
+    # 獲取所有 <a> 標籤
     last_height = driver.execute_script("return document.body.scrollHeight")
+    NO=0
+    title_json={} # Initialize as a dictionary
+    text_All_html=''
+    with open('Allexample.txt', 'w', encoding='utf-8') as file:
+        file.write('')
     while True:
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)  # 等待頁面加載
-        new_height = driver.execute_script("return document.body.scrollHeight")
-        if new_height == last_height:  # 如果高度沒有變化，說明已經到底部
-            break
-        last_height = new_height
-        # 重新讀取頁面內容
-        page_source = driver.page_source
-        soup = BeautifulSoup(page_source, "html.parser")
-        links = soup.find_all('a', class_='QotC6WphicSBRZfxn0QS')
-        # 提取 href 和 h3 的文字
-        for link in links:
-            href = link.get('href')  # 提取 href 屬性
-            if href and '/p/' in href:
-                href = href.split('/p/')[-1]  # 提取 /p/ 後面的部分
-                boards=href.split('.')[0]  # 提取 /p/ 後面的部分
-                href = href.split('.', 1)[-1]  # 提取第一個 . 後面的所有部分
-                href = (f'/bbs/{boards}/{href}.html')  # 提取第一個 . 後面的所有部分
-            h3_text = link.find('h3').get_text(strip=True) if link.find('h3') else "No Title"  # 提取 h3 的文字
-            print(f"2==Href: {href} ,boards {boards}, Title: {h3_text}")
-        
-    return soup
+            title_list = soup.find_all('a', class_='e7-article-default')
+            for i in range(len(title_list)):
+                text_html=''
+                title_json[NO] = {}
+                title_json[NO]['a'] = title_list[i]['href']
+                #取<span class="e7-show-if-device-is-not-xs" data-v-74af9fc6=""><span data-v-74af9fc6="">[推薦] 棒球[小律師]5/15日本小棒棒</span><span class="__e7-full-title-appended-part" data-v-74af9fc6=""></span></span> 中的值
+                span_element = title_list[i].find('span', class_='e7-show-if-device-is-not-xs')
+                if span_element:
+                    inner_span = span_element.find('span')
+                    if inner_span:
+                        title_json[NO]['title'] = inner_span.get_text()
+                        text_html+=str(NO)+'. '
+                        text_html+='  '+inner_span.get_text()
+                        text_html+=' '+title_list[i]['href']
+                        
+                NO += 1
+                if(text_html == ''):
+                    continue
+                text_All_html+=text_html+'\n'
+                print(text_html)
+            # 這裡改成追加模式
+            with open('Allexample.txt', 'a', encoding='utf-8') as file_All:
+                file_All.write(text_All_html)
+            text_All_html = ''
+            input_NO=input('請輸入編號 下一頁輸入* : ')
+            if input_NO=='*':
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(2)  # 等待頁面加載
+                new_height = driver.execute_script("return document.body.scrollHeight")
+                # 獲取頁面內容
+                page_source = driver.page_source
+                soup = BeautifulSoup(page_source, "html.parser")
+                if new_height == last_height:  # 如果高度沒有變化，說明已經到底部
+                    break
+            else:
+                break
+    
+    return title_json[int(input_NO)]['a']
 
 
 def favourite_boards_list(ptt_bot,URL):
-    page_list = ['z','x','c','v']
+    page_list = ['/','*','-','+']
     global board_URL
     while True:
         return_json=get_web_list(URL)
@@ -260,7 +294,11 @@ def get_web_scraper(ptt_bot, filename,boards_URL):
             time.sleep(5)
     except KeyboardInterrupt:
         listener.stop()  # 停止鍵盤監聽器
-        favourite_boards_list(ptt_bot,board_URL)
+        if ptt_bot is not None:
+            favourite_hit_boards(ptt_bot)
+            print("已停止監聽鍵盤事件")
+        else:
+            favourite_boards_list(ptt_bot,board_URL)
         
 
     # if last_key_pressed == 'e':
