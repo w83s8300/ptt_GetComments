@@ -19,7 +19,7 @@ chrome_options.add_argument("--headless")  # 啟用無頭模式
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--no-sandbox")
 
-def favourite_boards(ptt_bot):
+def favourite_boards(ptt_bot,line_type=''):
     favourite_boards = ptt_bot.get_favourite_boards()
     board_list = []
     with open('Allexample.txt', 'w', encoding='utf-8') as file_All:
@@ -36,7 +36,7 @@ def favourite_boards(ptt_bot):
     board_URL = URL
     favourite_boards_list(ptt_bot,URL)
     
-def favourite_hit_boards(ptt_bot=''):
+def favourite_hit_boards(ptt_bot='',line_type=''):
     # 啟動瀏覽器
     Type_ilst = ['all',
             'news',
@@ -210,7 +210,7 @@ def get_web_list(URL):
     
     return return_json
 
-def get_web_scraper(ptt_bot, filename,boards_URL):
+def get_web_scraper(ptt_bot, filename, boards_URL,line_type=''):
     stop_event = Event()  # 用於控制迴圈的旗標
     # 初始化
     engine = pyttsx3.init()
@@ -293,12 +293,9 @@ def get_web_scraper(ptt_bot, filename,boards_URL):
                 break
             time.sleep(5)
     except KeyboardInterrupt:
-        listener.stop()  # 停止鍵盤監聽器
-        if ptt_bot is not None:
-            favourite_hit_boards(ptt_bot)
-            print("已停止監聽鍵盤事件")
-        else:
-            favourite_boards_list(ptt_bot,board_URL)
+        favourite_boards_list(ptt_bot,board_URL)
+            
+        
         
 
     # if last_key_pressed == 'e':

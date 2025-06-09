@@ -58,15 +58,24 @@ if __name__ == '__main__':
             file.write('')
         match line_type:
             case "1":
-                Get_Ptt_Data.favourite_boards(ptt_bot)
+                Get_Ptt_Data.favourite_boards(ptt_bot,line_type)
             case "2":
-                Get_Ptt_Data.favourite_hit_boards(ptt_bot)
+                Get_Ptt_Data.favourite_hit_boards(ptt_bot,line_type)
             case "3":
                 # 看板名稱
                 URL=input('\n請輸入網址:')
                 filename=filename_to_aid(URL)
-                Get_Ptt_Data.get_web_scraper(ptt_bot,filename,'')
+                Get_Ptt_Data.get_web_scraper(ptt_bot,filename,'',line_type)
     except KeyboardInterrupt:
-        Get_Ptt_Data.favourite_boards(ptt_bot)
+        match line_type:
+            case "1":
+                Get_Ptt_Data.favourite_boards(ptt_bot,line_type)
+            case "2":
+                Get_Ptt_Data.favourite_hit_boards(ptt_bot,line_type)
+            case "3":
+                # 看板名稱
+                URL=input('\n請輸入網址:')
+                filename=filename_to_aid(URL)
+                Get_Ptt_Data.get_web_scraper(ptt_bot,filename,'',line_type)
     finally:
         ptt_bot.logout()
