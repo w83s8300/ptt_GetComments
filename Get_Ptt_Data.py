@@ -293,10 +293,10 @@ def get_web_scraper(ptt_bot, filename, boards_URL,line_type=''):
                 break
             time.sleep(5)
     except KeyboardInterrupt:
-        favourite_boards_list(ptt_bot,board_URL)
-            
-        
-        
+        try:
+            favourite_boards_list(ptt_bot,board_URL)
+        except Exception as e:
+            favourite_hit_boards(ptt_bot,line_type)
 
     # if last_key_pressed == 'e':
     #     favourite_boards(ptt_bot)
