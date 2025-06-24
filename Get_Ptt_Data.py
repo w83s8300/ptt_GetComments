@@ -37,6 +37,8 @@ def favourite_boards(ptt_bot,line_type=''):
     favourite_boards_list(ptt_bot,URL)
     
 def favourite_hit_boards(ptt_bot='',line_type=''):
+    with open('Allexample.txt', 'w', encoding='utf-8') as file:
+        file.write('')
     # 啟動瀏覽器
     Type_ilst = ['all',
             'news',
@@ -54,6 +56,21 @@ def favourite_hit_boards(ptt_bot='',line_type=''):
             'foodtravel'
             
     ]
+    with open('Allexample.txt', 'a', encoding='utf-8') as file_All:
+        file_All.write('''0.全部
+1.新聞
+2.非新聞
+3.遊戲區
+4.職涯區
+5.消費區
+6.動漫區
+7.運動區
+8.兩性男女區
+9.偶像團體區
+10.影音娛樂區
+11.數位生活區
+12.台灣在地區
+13.美食旅''')
     print('''0.全部
 1.新聞
 2.非新聞
@@ -112,7 +129,7 @@ def re_hit_boards_list(soup,driver):
                     inner_span = span_element.find('span')
                     if inner_span:
                         title_json[NO]['title'] = inner_span.get_text()
-                        text_html+=str(NO)+'. '
+                        text_html+=f"{str(NO).rjust(2)}. "
                         text_html+='  '+inner_span.get_text()
                         text_html+=' '+title_list[i]['href']
                         
@@ -127,6 +144,8 @@ def re_hit_boards_list(soup,driver):
             text_All_html = ''
             input_NO=input('請輸入編號 下一頁輸入* : ')
             if input_NO=='*':
+                with open('Allexample.txt', 'w', encoding='utf-8') as file:
+                    file.write('')
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 time.sleep(2)  # 等待頁面加載
                 new_height = driver.execute_script("return document.body.scrollHeight")
@@ -149,8 +168,8 @@ def favourite_boards_list(ptt_bot,URL):
         boards_URL=URL
         file2 = open('Allexample.txt', 'w', encoding='utf-8')
         for i in return_json['title_list']:
-            print(f"{i}. {return_json['title_list'][i]['title']}  {return_json['title_list'][i]['a']}")
-            file2.write(f"{i}. {return_json['title_list'][i]['title']}\n")
+            print(f"{str(i).rjust(2)}. {return_json['title_list'][i]['title']}  {return_json['title_list'][i]['a']}")
+            file2.write(f"{str(i).rjust(2)}. {return_json['title_list'][i]['title']}\n")
         for i in range(len(return_json['page_list'])):
             print(f"{page_list[i]}. {return_json['page_list'][i]['page']}",end=' ')
         print(f"q或e 回看板",end=' ')

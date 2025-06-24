@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 
 from GET_AID import filename_to_aid
 import Get_Ptt_Data
+import getpass
 
 # 取得當前的 CMD 視窗句柄
 hwnd = win32console.GetConsoleWindow()
@@ -25,7 +26,7 @@ def login():
         try:
             ptt_bot = PyPtt.API()
             Ptt_id = input('請輸入帳號:')
-            Ptt_wd = input('請輸入密碼:')
+            Ptt_wd = getpass.getpass('請輸入密碼:')
             ptt_bot.login(Ptt_id, Ptt_wd,
                           kick_other_session=False if retry_time == 0 else True)
             break
